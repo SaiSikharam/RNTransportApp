@@ -6,109 +6,76 @@
  * @flow
  */
 
-import React, {Fragment} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+import React, { Component } from 'react';
+import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import SearchComponent from './src/components/SearchComponent';
+import ResultsView from './src/components/ResultsView';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+export default class App extends Component {
+  state = {
+    searchResults: [],
+    loading: false,
+    loadingFailed: undefined,
+  }
 
-const App = () => {
-  return (
-    <Fragment>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </Fragment>
-  );
-};
+  updateResult = (results, hasError) => {
+    this.setState({ searchResults: results });
+    this.setState({ loadingFailed: hasError });
+  }
+
+  updateLoadingStatus = (status) => {
+    if (status == true) {
+      this.setState({
+        loadingFailed: undefined,
+      })
+    }
+    this.setState({ loading: status });
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.welcome}>Transport App</Text>
+        <SearchComponent updateResult={this.updateResult} updateLoadingStatus={this.updateLoadingStatus} />
+        <View style={styles.spacer}></View>
+        {
+          this.state.loading &&
+          <ActivityIndicator color="#2296F3" size="large"></ActivityIndicator>
+        }
+
+        {
+          this.state.loadingFailed &&
+          <Text>Failed to load data. Please try again. </Text>
+        }
+
+        {
+          (this.state.loadingFailed == false && this.state.searchResults.length == 0) &&
+          <Text>No results matching search criteria. Please try by changing the search criteria.</Text>
+        }
+
+        {
+          !this.state.loading &&
+          <ResultsView searchResults={this.state.searchResults} />
+        }
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  container: {
+    flex: 1,
+    backgroundColor: '#F5FCFF',
+    margin: 20
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginTop: 20,
   },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  spacer: {
+    marginTop: 10,
   },
 });
 
-export default App;
+
