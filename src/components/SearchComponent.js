@@ -39,7 +39,14 @@ export default class SearchComponent extends Component {
         this.setState(searchInitState());
     }
 
+    hasFormErrors = () => {
+        return this.state.departureDtError;
+    }
+
     search = () => {
+        if (this.hasFormErrors()) {
+            return;
+        }
         this.props.updateResult([]);
         this.props.updateLoadingStatus(true);
         this.setState({message: this.state.transportMode})
@@ -55,6 +62,8 @@ export default class SearchComponent extends Component {
     validateDeparture = () => {
         if (this.state.departureEndDateTime && this.state.departureStartDateTime && (moment(this.departureStartDateTime) > moment(this.state.departureEndDateTime))) {
             this.setState({departureDtError: true});
+        } else {
+            this.setState({departureDtError: false});
         }
     }
 
